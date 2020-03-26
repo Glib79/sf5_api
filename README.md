@@ -8,6 +8,7 @@ Basic API project based on Symfony 5 using: doctrine, authentication JWT token (
 - git clone project from https://github.com/Glib79/Project_name
 - rename `.env.example` file to `.env`
 - edit `.env` and setup database credentials (MYSQL_ROOT_PASSWORD, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD), it's for database which will be created in docker container.
+- rename `app/.env.example` to `app/.env`
 - copy `app/.env` to `app/.env.local`
 - edit `app/.env.local` and update line: `DATABASE_URL=mysql://db_user:db_password@mysql:3306/db_name?serverVersion=8` - replace `db_user`, `db_password` and `db_name` with your credentials (should be the same you set up in `.env` file earlier).
 
