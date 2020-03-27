@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\DTO\UserDto;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -54,15 +55,15 @@ class UserManager
     }
     
     /**
-     * Create User
+     * Create User fro dto
      * @param string $email
      * @param string $password
      * @return bool
      */
-    public function createUser(string $email, string $password): bool
+    public function createUser(UserDto $dto): bool
     {
-        $user = new User($email);
-        $user->setPassword($this->encoder->encodePassword($user, $password));
+        $user = new User($dto->email);
+        $user->setPassword($this->encoder->encodePassword($user, $dto->password));
 
         return $this->userRepository->create($user);
     }

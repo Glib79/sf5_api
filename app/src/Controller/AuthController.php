@@ -3,8 +3,11 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\User;
+use App\DataTransformer\InputUserDataTransformer;
+use App\DTO\UserDto;
 use App\Service\UserManager;
+use App\Support\ValidationException;
+use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,16 +17,23 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class AuthController extends BaseApiController
 {
     /**
+     * @var InputUserDataTransformer
+     */
+    private $inputUserDataTransformer;
+    
+    /**
      * @var UserManager
      */
     private $userManager;
     
     /**
      * AuthController constructor
+     * @param InputUserDataTransformer $inputUserDataTransformer
      * @param UserManager $userManager
      */
-    public function __construct(UserManager $userManager)
+    public function __construct(InputUserDataTransformer $inputUserDataTransformer, UserManager $userManager)
     {
+        $this->inputUserDataTransformer = $inputUserDataTransformer;
         $this->userManager = $userManager;
     }
     
@@ -52,27 +62,20 @@ class AuthController extends BaseApiController
      */
     public function register(Request $request): JsonResponse
     {
-        
-        $request = $this->transformJsonBody($request);
-        $password = $request->get('password');
-        $email = $request->get('email');
-
-        if (empty($password) || empty($email)) {
-            return $this->responseWithError("Invalid Email or Password", Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-
         try {
-            $this->userManager->createUser($email, $password);
+            /** @var UserDto */
+            $dto = $this->inputUserDataTransformer->transform($request);
+            
+            $this->userManager->createUser($dto);
             
             return $this->responseWithSuccess(
-                sprintf('User %s successfully created', $email), 
+                sprintf('User %s successfully created', $dto->email), 
                 Response::HTTP_CREATED
             );
+        } catch (ValidationException $e) {
+            return $this->responseWithError($e->getMessage(), Response::HTTP_BAD_REQUEST);
         } catch (Exception $e) {
-            return $this->responseWithError(
-                sprintf('User %s can not be created', $email),
-                Response::HTTP_UNPROCESSABLE_ENTITY
-            );
+            return $this->responseWithError('User can not be created', Response::HTTP_BAD_REQUEST);
         }
     }
 }

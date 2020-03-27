@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Service;
 
+use App\DTO\UserDto;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\UserManager;
@@ -74,9 +75,13 @@ class UserManagerTest extends TestCase
             ->with($userWithPass)
             ->willReturn(true);
         
+        $userDto = new UserDto();
+        $userDto->email = 'test@test.com';
+        $userDto->password = 'password_string';    
+            
         $userManager = new UserManager($encoder, $JWTManager, $userRepository);
         
-        $result = $userManager->createUser('test@test.com', 'password_string');
+        $result = $userManager->createUser($userDto);
         
         $this->assertTrue($result);
     }

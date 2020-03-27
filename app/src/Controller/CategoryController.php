@@ -3,9 +3,12 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\DataTransformer\InputCategoryDataTransformer;
+use App\DTO\CategoryDto;
 use App\Entity\Category;
 use App\Repository\CategoryRepository;
 use App\Service\CategoryManager;
+use App\Support\ValidationException;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,15 +29,27 @@ class CategoryController extends BaseApiController
      * @var CategoryRepository
      */
     private $categoryRepository;
+    
+    /**
+     * @var InputCategoryDataTransformer
+     */
+    private $inputCategoryDataTransformer;
 
     /**
      * CategoryController constructor
-     * @param EntityManagerInterface $entityManager
+     * @param CategoryManager $categoryManager
+     * @param CategoryRepository $categoryRepository
+     * @param InputCategoryDataTransformer $inputCategoryDataTransformer
      */
-    public function __construct(CategoryManager $categoryManager, CategoryRepository $categoryRepository)
+    public function __construct(
+        CategoryManager $categoryManager, 
+        CategoryRepository $categoryRepository, 
+        InputCategoryDataTransformer $inputCategoryDataTransformer
+    )
     {
         $this->categoryManager = $categoryManager;
         $this->categoryRepository = $categoryRepository;
+        $this->inputCategoryDataTransformer = $inputCategoryDataTransformer;
     }
     
     /**
@@ -46,19 +61,17 @@ class CategoryController extends BaseApiController
      */
     public function addCategory(Request $request): JsonResponse
     {
-        try {
-            $request = $this->transformJsonBody($request);
-            $name = $request->get('name');
+        try {      
+            /** @var CategoryDto */
+            $dto = $this->inputCategoryDataTransformer->transform($request);
             
-            if (empty($name)) {
-                throw new Exception();
-            }
-
-            $this->categoryManager->createCategory($name);
+            $this->categoryManager->createCategory($dto);
             
             return $this->responseWithSuccess("Category created", Response::HTTP_CREATED);
+        } catch (ValidationException $e) {
+            return $this->responseWithError($e->getMessage(), Response::HTTP_BAD_REQUEST);
         } catch (Exception $e) {
-            return $this->responseWithError("Data no valid", Response::HTTP_UNPROCESSABLE_ENTITY);
+            return $this->responseWithError("Data no valid", Response::HTTP_BAD_REQUEST);
         }
     }
     
@@ -70,6 +83,7 @@ class CategoryController extends BaseApiController
      */
     public function deleteCategory(int $id): JsonResponse
     {
+        /** @var Category */
         $category = $this->categoryRepository->find($id);
         
         if (!$category) {
@@ -101,6 +115,7 @@ class CategoryController extends BaseApiController
      */
     public function getCategory($id): JsonResponse
     {
+        /** @var Category */
         $category = $this->categoryRepository->find($id);
 
         if (!$category) {
@@ -120,24 +135,23 @@ class CategoryController extends BaseApiController
     public function updateCategory(Request $request, int $id): JsonResponse
     {
         try {
+            /** @var Category */
             $category = $this->categoryRepository->find($id);
 
             if (!$category) {
                 return $this->responseWithError("Category not found", Response::HTTP_NOT_FOUND);
             }
 
-            $request = $this->transformJsonBody($request);
-            $name = $request->get('name');
+            /** @var CategoryDto */
+            $dto = $this->inputCategoryDataTransformer->transform($request);
 
-            if (empty($name)) {
-                throw new Exception();
-            }
-
-            $this->categoryManager->updateCategory($category, $name);
+            $this->categoryManager->updateCategory($category, $dto);
 
             return $this->responseWithSuccess("Category updated", Response::HTTP_OK);
+        } catch (ValidationException $e) {
+            return $this->responseWithError($e->getMessage(), Response::HTTP_BAD_REQUEST);
         } catch (Exception $e) {
-            return $this->responseWithError("Data no valid", Response::HTTP_UNPROCESSABLE_ENTITY);
+            return $this->responseWithError("Data no valid", Response::HTTP_BAD_REQUEST);
         }
     }
 }
