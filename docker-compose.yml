@@ -11,7 +11,7 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
   nginx:
-    image: nginx:1.15.3-alpine
+    image: nginx:1.16.1-alpine
     restart: on-failure
     depends_on:
       - php
