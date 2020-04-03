@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\DataTransformer\InputUserDataTransformer;
+use App\DataTransformer\UserDataTransformer;
+use App\DTO\BaseDto;
 use App\DTO\UserDto;
 use App\Service\UserManager;
 use App\Support\ValidationException;
@@ -17,9 +18,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class AuthController extends BaseApiController
 {
     /**
-     * @var InputUserDataTransformer
+     * @var UserDataTransformer
      */
-    private $inputUserDataTransformer;
+    private $userDataTransformer;
     
     /**
      * @var UserManager
@@ -28,12 +29,12 @@ class AuthController extends BaseApiController
     
     /**
      * AuthController constructor
-     * @param InputUserDataTransformer $inputUserDataTransformer
+     * @param UserDataTransformer $userDataTransformer
      * @param UserManager $userManager
      */
-    public function __construct(InputUserDataTransformer $inputUserDataTransformer, UserManager $userManager)
+    public function __construct(UserDataTransformer $userDataTransformer, UserManager $userManager)
     {
-        $this->inputUserDataTransformer = $inputUserDataTransformer;
+        $this->userDataTransformer = $userDataTransformer;
         $this->userManager = $userManager;
     }
     
@@ -64,7 +65,7 @@ class AuthController extends BaseApiController
     {
         try {
             /** @var UserDto */
-            $dto = $this->inputUserDataTransformer->transform($request);
+            $dto = $this->userDataTransformer->transformInput($request, [BaseDto::GROUP_CREATE]);
             
             $this->userManager->createUser($dto);
             

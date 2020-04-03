@@ -6,14 +6,15 @@ namespace App\DataTransformer;
 use App\DTO\UserDto;
 use Symfony\Component\HttpFoundation\Request;
 
-class InputUserDataTransformer extends BaseDataTransformer
+class UserDataTransformer extends BaseDataTransformer
 {
     /**
      * Transform Request to UserDto and validate dto
      * @param Request $request
+     * @param array $groups
      * @return UserDto
      */
-    public function transform(Request $request): UserDto
+    public function transformInput(Request $request, array $groups): UserDto
     {
         $dto = new UserDto();
         $data = json_decode($request->getContent(), true);
@@ -21,7 +22,7 @@ class InputUserDataTransformer extends BaseDataTransformer
         $dto->email = $data['email'];
         $dto->password = $data['password'];
         
-        $this->validate($dto);
+        $this->validate($dto, $groups);
         
         return $dto;
     }

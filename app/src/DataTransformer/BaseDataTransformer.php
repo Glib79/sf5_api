@@ -25,11 +25,12 @@ abstract class BaseDataTransformer
     /**
      * Validate Dto object
      * @param object $dto
+     * @param array $groups
      * @return bool
      */
-    protected function validate(object $dto): bool
+    protected function validate(object $dto, array $groups): bool
     {
-        $validationErrors = $this->validator->validate($dto);
+        $validationErrors = $this->validator->validate($dto, null, $groups);
         
         if (count($validationErrors) > 0) {
             throw new ValidationException((string) $validationErrors);

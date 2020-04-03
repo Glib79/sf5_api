@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\DataTransformer\InputCategoryDataTransformer;
+use App\DataTransformer\CategoryDataTransformer;
+use App\DTO\BaseDto;
 use App\DTO\CategoryDto;
 use App\Entity\Category;
 use App\Repository\CategoryRepository;
@@ -31,25 +32,25 @@ class CategoryController extends BaseApiController
     private $categoryRepository;
     
     /**
-     * @var InputCategoryDataTransformer
+     * @var CategoryDataTransformer
      */
-    private $inputCategoryDataTransformer;
+    private $categoryDataTransformer;
 
     /**
      * CategoryController constructor
+     * @param CategoryDataTransformer $categoryDataTransformer
      * @param CategoryManager $categoryManager
      * @param CategoryRepository $categoryRepository
-     * @param InputCategoryDataTransformer $inputCategoryDataTransformer
      */
     public function __construct(
+        CategoryDataTransformer $categoryDataTransformer,
         CategoryManager $categoryManager, 
-        CategoryRepository $categoryRepository, 
-        InputCategoryDataTransformer $inputCategoryDataTransformer
+        CategoryRepository $categoryRepository
     )
     {
+        $this->categoryDataTransformer = $categoryDataTransformer;
         $this->categoryManager = $categoryManager;
         $this->categoryRepository = $categoryRepository;
-        $this->inputCategoryDataTransformer = $inputCategoryDataTransformer;
     }
     
     /**
@@ -63,7 +64,7 @@ class CategoryController extends BaseApiController
     {
         try {      
             /** @var CategoryDto */
-            $dto = $this->inputCategoryDataTransformer->transform($request);
+            $dto = $this->categoryDataTransformer->transformInput($request, [BaseDto::GROUP_CREATE]);
             
             $this->categoryManager->createCategory($dto);
             
@@ -143,7 +144,7 @@ class CategoryController extends BaseApiController
             }
 
             /** @var CategoryDto */
-            $dto = $this->inputCategoryDataTransformer->transform($request);
+            $dto = $this->categoryDataTransformer->transformInput($request, [BaseDto::GROUP_UPDATE]);
 
             $this->categoryManager->updateCategory($category, $dto);
 
