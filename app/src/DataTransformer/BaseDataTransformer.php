@@ -4,10 +4,16 @@ declare(strict_types=1);
 namespace App\DataTransformer;
 
 use App\Support\ValidationException;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class BaseDataTransformer
 {
+    /**
+     * @var SerializerInterface
+     */
+    protected $serializer;
+    
     /**
      * @var ValidatorInterface
      */
@@ -15,10 +21,12 @@ abstract class BaseDataTransformer
     
     /**
      * BaseDataTransformer constructor
+     * @param SerializerInterface $serializer
      * @param ValidatorInterface $validator
      */
-    public function __construct(ValidatorInterface $validator)
+    public function __construct(SerializerInterface $serializer, ValidatorInterface $validator)
     {
+        $this->serializer = $serializer;
         $this->validator = $validator;
     }
     
@@ -37,5 +45,16 @@ abstract class BaseDataTransformer
         }
         
         return true;
+    }
+    
+    /**
+     * Serialize Dto object to JSON string
+     * @param object $dto
+     * @param array $groups
+     * @return string
+     */
+    protected function serialize(object $dto, array $groups): string
+    {
+        return $this->serializer->serialize($dto, 'json', ['groups' => $groups]);
     }
 }

@@ -3,59 +3,106 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
-use App\Entity\Category;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use App\DTO\BaseDto;
+use App\DTO\CategoryDto;
+use Doctrine\DBAL\Driver\Connection;
 
-class CategoryRepository extends ServiceEntityRepository
+class CategoryRepository
 {
     /**
-     * @var EntityManager
+     * @var Connection
      */
-    private $entityManager;
+    private $connection;
     
     /**
      * CategoryRepository constructor
-     * @param ManagerRegistry $registry
+     * @param Connection $connection
      */
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(Connection $connection)
     {
-        parent::__construct($registry, Category::class);
-        
-        $this->entityManager = $this->getEntityManager();
+        $this->connection = $connection;
     }
     
     /**
-     * Add new Category to database
-     * @param Category $category
+     * Add new category to database
+     * @param CategoryDto $category
      * @return bool
      */
-    public function create(Category $category): bool
+    public function addCategory(CategoryDto $category): bool
     {
-        $this->entityManager->persist($category);
+        $sql = 'INSERT INTO category (name, created_at, modified_at) VALUES (:name, :createdAt, :modifiedAt);';
+    
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute([
+            'name'       => $category->name,
+            'createdAt'  => $category->createdAt->format(BaseDto::FORMAT_DATE_TIME_DB),
+            'modifiedAt' => $category->modifiedAt->format(BaseDto::FORMAT_DATE_TIME_DB)
+        ]);
         
-        return $this->save();
+        return true;
     }
     
     /**
      * Delete Category from database
-     * @param Category $category
+     * @param int $id
      * @return bool
      */
-    public function delete(Category $category): bool
+    public function deleteCategory(int $id): bool
     {
-        $this->entityManager->remove($category);
+        $sql = 'DELETE FROM category WHERE id = :id;';
         
-        return $this->save();
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute([
+            'id' => $id
+        ]);
+        
+        return true;
     }
     
     /**
-     * Save changes to database
+     * Find list of categories
+     * @return array
+     */
+    public function findCategories(): array
+    {
+        $sql = 'SELECT * FROM category;';
+        
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute();
+        
+        return $stmt->fetchAll();
+    }
+    
+    /**
+     * Get single category by id
+     * @param int $id
+     * @return array
+     */
+    public function getCategoryById(int $id): array
+    {
+        $sql = 'SELECT * FROM category WHERE id = :id;';
+        
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        
+        return $stmt->fetch();
+    }
+     
+    /**
+     * Update category in database
+     * @param CategoryDto $category
      * @return bool
      */
-    public function save(): bool
+    public function updateCategory(CategoryDto $category): bool
     {
-        $this->entityManager->flush();
+        $sql = 'UPDATE category SET name = :name, modified_at = :modifiedAt WHERE id = :id;';
+        
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute([
+            'name'       => $category->name,
+            'modifiedAt' => $category->modifiedAt->format(BaseDto::FORMAT_DATE_TIME_DB),
+            'id'         => $category->id
+        ]);
         
         return true;
     }

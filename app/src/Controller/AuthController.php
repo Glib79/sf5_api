@@ -65,7 +65,9 @@ class AuthController extends BaseApiController
     {
         try {
             /** @var UserDto */
-            $dto = $this->userDataTransformer->transformInput($request, [BaseDto::GROUP_CREATE]);
+            $dto = $this->userDataTransformer->transformInput($request);
+            
+            $dto->validate([BaseDto::GROUP_CREATE]);
             
             $this->userManager->createUser($dto);
             

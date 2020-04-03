@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use DateTime;
 use App\DTO\CategoryDto;
-use App\Entity\Category;
 use App\Repository\CategoryRepository;
 
 class CategoryManager
@@ -30,32 +30,31 @@ class CategoryManager
      */
     public function createCategory(CategoryDto $dto): bool
     {
-        $category = new Category();
-        $category->setName($dto->name);
+        $dto->createdAt = new DateTime();
+        $dto->modifiedAt = new DateTime();
         
-        return $this->categoryRepository->create($category);
+        return $this->categoryRepository->addCategory($dto);
     }
     
     /**
      * Delete Category
-     * @param Category $category
+     * @param int $id
      * @return bool
      */
-    public function deleteCategory(Category $category): bool
+    public function deleteCategory(int $id): bool
     {
-        return $this->categoryRepository->delete($category);
+        return $this->categoryRepository->deleteCategory($id);
     }
     
     /**
      * Update Category
-     * @param Category $category
      * @param CategoryDto $dto
      * @return bool
      */
-    public function updateCategory(Category $category, CategoryDto $dto): bool
+    public function updateCategory(CategoryDto $dto): bool
     {
-        $category->setName($dto->name);
+        $dto->modifiedAt = new DateTime();
         
-        return $this->categoryRepository->save();
+        return $this->categoryRepository->updateCategory($dto);
     }
 }

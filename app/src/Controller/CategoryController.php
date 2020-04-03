@@ -6,7 +6,6 @@ namespace App\Controller;
 use App\DataTransformer\CategoryDataTransformer;
 use App\DTO\BaseDto;
 use App\DTO\CategoryDto;
-use App\Entity\Category;
 use App\Repository\CategoryRepository;
 use App\Service\CategoryManager;
 use App\Support\ValidationException;
@@ -54,7 +53,7 @@ class CategoryController extends BaseApiController
     }
     
     /**
-     * Add Category
+     * Add category
      * @param Request $request
      * @return JsonResponse
      * @throws Exception
@@ -64,7 +63,9 @@ class CategoryController extends BaseApiController
     {
         try {      
             /** @var CategoryDto */
-            $dto = $this->categoryDataTransformer->transformInput($request, [BaseDto::GROUP_CREATE]);
+            $dto = $this->categoryDataTransformer->transformInput($request);
+            
+            $dto->validate([BaseDto::GROUP_CREATE]);
             
             $this->categoryManager->createCategory($dto);
             
@@ -77,21 +78,20 @@ class CategoryController extends BaseApiController
     }
     
     /**
-     * Delete Category
+     * Delete category
      * @param int $id
      * @return JsonResponse
      * @Route("/category/{id}", name="category_delete", methods={"DELETE"})
      */
     public function deleteCategory(int $id): JsonResponse
     {
-        /** @var Category */
-        $category = $this->categoryRepository->find($id);
+        $category = $this->categoryRepository->getCategoryById($id);
         
         if (!$category) {
             return $this->responseWithError("Category not found", Response::HTTP_NOT_FOUND);
         }
         
-        $this->categoryManager->deleteCategory($category);
+        $this->categoryManager->deleteCategory($id);
         
         return $this->responseWithSuccess("Category deleted", Response::HTTP_OK);
     }
@@ -103,31 +103,34 @@ class CategoryController extends BaseApiController
      */
     public function getCategories(): JsonResponse
     {
-        $data = $this->categoryRepository->findAll();
+        $data = $this->categoryRepository->findCategories();
         
-        return $this->responseWithData($data);
+        $outputList = $this->categoryDataTransformer->transformList($data, [BaseDto::GROUP_LIST]);
+        
+        return $this->responseWithData($outputList);
     }
 
     /**
      * Get single category
-     * @param $id
+     * @param int $id
      * @return JsonResponse
      * @Route("/category/{id}", name="category_get", methods={"GET"})
      */
-    public function getCategory($id): JsonResponse
+    public function getCategory(int $id): JsonResponse
     {
-        /** @var Category */
-        $category = $this->categoryRepository->find($id);
+        $category = $this->categoryRepository->getCategoryById($id);
 
         if (!$category) {
             return $this->responseWithError("Category not found", Response::HTTP_NOT_FOUND);
         }
+        
+        $output = $this->categoryDataTransformer->transformOutput($category, [BaseDto::GROUP_SINGLE]);
 
-        return $this->responseWithData($category->jsonSerialize());
+        return $this->responseWithData($output);
     }
 
     /**
-     * Update Category
+     * Update category
      * @param Request $request
      * @param int $id
      * @return JsonResponse
@@ -136,17 +139,19 @@ class CategoryController extends BaseApiController
     public function updateCategory(Request $request, int $id): JsonResponse
     {
         try {
-            /** @var Category */
-            $category = $this->categoryRepository->find($id);
+            $category = $this->categoryRepository->getCategoryById($id);
 
             if (!$category) {
                 return $this->responseWithError("Category not found", Response::HTTP_NOT_FOUND);
             }
 
             /** @var CategoryDto */
-            $dto = $this->categoryDataTransformer->transformInput($request, [BaseDto::GROUP_UPDATE]);
+            $dto = $this->categoryDataTransformer->transformInput($request);
+            $dto->id = (int) $category['id'];
 
-            $this->categoryManager->updateCategory($category, $dto);
+            $dto->validate([BaseDto::GROUP_UPDATE]);
+            
+            $this->categoryManager->updateCategory($dto);
 
             return $this->responseWithSuccess("Category updated", Response::HTTP_OK);
         } catch (ValidationException $e) {
