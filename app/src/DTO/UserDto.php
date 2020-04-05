@@ -36,6 +36,11 @@ class UserDto extends BaseDto
     public $password;
     
     /**
+     * @var array
+     */
+    public $roles;
+    
+    /**
      * @Groups({BaseDto::GROUP_SINGLE})
      * @var DateTime
      */

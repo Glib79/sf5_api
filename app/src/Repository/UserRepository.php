@@ -3,59 +3,51 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\DTO\BaseDto;
+use App\DTO\UserDto;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\DBAL\Driver\Connection;
 
 class UserRepository extends ServiceEntityRepository
 {
     /**
-     * @var EntityManager
+     * @var Connection
      */
-    private $entityManager;
+    private $connection;
     
     /**
      * UserRepository constructor
+     * ManagerRegistry is needed because we have authentication base on UserInterface which needs User Entity and Repository 
+     * @param Connection $connection
      * @param ManagerRegistry $registry
      */
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(Connection $connection, ManagerRegistry $registry)
     {
         parent::__construct($registry, User::class);
         
-        $this->entityManager = $this->getEntityManager();
+        $this->connection = $connection;
     }
     
     /**
-     * Add new User to database
-     * @param User $user
+     * Add new user to database
+     * @param UserDto $user
      * @return bool
      */
-    public function create(User $user): bool
+    public function createUser(UserDto $user): bool
     {
-        $this->entityManager->persist($user);
+        $sql = 'INSERT INTO user (email, password, roles, created_at, modified_at) 
+                VALUES (:email, :password, :roles, :createdAt, :modifiedAt);';
         
-        return $this->save();
-    }
-    
-    /**
-     * Delete User from database
-     * @param User $user
-     * @return bool
-     */
-    public function delete(User $user): bool
-    {
-        $this->entityManager->remove($user);
-        
-        return $this->save();
-    }
-    
-    /**
-     * Save changes to database
-     * @return bool
-     */
-    public function save(): bool
-    {
-        $this->entityManager->flush();
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute([
+            'email'      => $user->email,
+            'password'   => $user->password,
+            'roles'      => json_encode($user->roles),
+            'createdAt'  => $user->createdAt->format(BaseDto::FORMAT_DATE_TIME_DB),
+            'modifiedAt' => $user->modifiedAt->format(BaseDto::FORMAT_DATE_TIME_DB)
+        ]);
         
         return true;
     }

@@ -6,12 +6,15 @@ namespace App\Service;
 use App\DTO\UserDto;
 use App\Entity\User;
 use App\Repository\UserRepository;
+use DateTime;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class UserManager
 {
+    public const ROLE_USER = 'ROLE_USER';
+    
     /**
      * @var UserPasswordEncoderInterface
      */
@@ -62,9 +65,15 @@ class UserManager
      */
     public function createUser(UserDto $dto): bool
     {
+        $dto->roles = [self::ROLE_USER];
+        
         $user = new User($dto->email);
-        $user->setPassword($this->encoder->encodePassword($user, $dto->password));
-
-        return $this->userRepository->create($user);
+        $user->setRoles($dto->roles);
+        
+        $dto->password = $this->encoder->encodePassword($user, $dto->password);
+        $dto->createdAt = new DateTime();
+        $dto->modifiedAt = new DateTime();
+        
+        return $this->userRepository->createUser($dto);
     }
 }

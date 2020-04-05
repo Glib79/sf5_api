@@ -78,7 +78,7 @@ class AuthController extends BaseApiController
         } catch (ValidationException $e) {
             return $this->responseWithError($e->getMessage(), Response::HTTP_BAD_REQUEST);
         } catch (Exception $e) {
-            return $this->responseWithError('User can not be created', Response::HTTP_BAD_REQUEST);
+            return $this->responseWithError('User can not be created '.$e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 }

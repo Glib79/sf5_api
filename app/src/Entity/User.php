@@ -8,9 +8,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
+ * This entity is only for authentication - it's needed by UserInterface
  * @ORM\Entity
  * @ORM\Table(name="user")
- * @ORM\HasLifecycleCallbacks()
  */
 class User implements UserInterface
 {
@@ -31,16 +31,11 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=255)
      */
     private $password;
-
-    /**
-     * @ORM\Column(type="datetime", name="created_at")
-     */
-    private $createdAt;
     
     /**
-     * @ORM\Column(type="datetime", name="modified_at")
+     * @ORM\Column(type="json")
      */
-    private $modifiedAt;
+    private $roles;
     
     /**
      * User constructor.
@@ -51,29 +46,6 @@ class User implements UserInterface
         $this->email = $email;
     }
 
-    /**
-     * Update dates during creation and modification
-     */
-    
-    /**
-     * Gets triggered only on insert
-     * @ORM\PrePersist
-     */
-    public function onPrePersist(): void
-    {
-        $this->createdAt = new DateTime("now");
-        $this->modifiedAt = new DateTime("now");
-    }
-    
-    /**
-     * Gets triggered every time on update
-     * @ORM\PreUpdate
-     */
-    public function onPreUpdate(): void
-    {
-        $this->modifiedAt = new DateTime("now");
-    }
-    
     /**
      * User stuff
      */
@@ -86,16 +58,8 @@ class User implements UserInterface
     }
     
     /**
-     * Get roles
-     * @return array
-     */
-    public function getRoles(): array
-    {
-        return ['ROLE_USER'];
-    }
-    
-    /**
      * Get Salt
+     * We don't need salt because bcrypt don't need salt (it has build in salt stuff)
      * @return string|null
      */
     public function getSalt(): ?string
@@ -154,6 +118,27 @@ class User implements UserInterface
     public function setPassword(string $password): User
     {
         $this->password = $password;
+        
+        return $this;
+    }
+    
+    /**
+     * Get roles
+     * @return array
+     */
+    public function getRoles(): array
+    {
+        return $this->roles;
+    }
+    
+    /**
+     * Set roles
+     * @param array $roles
+     * @return User
+     */
+    public function setRoles(array $roles): User
+    {
+        $this->roles = $roles;
         
         return $this;
     }
