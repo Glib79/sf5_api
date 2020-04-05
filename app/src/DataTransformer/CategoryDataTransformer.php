@@ -5,6 +5,7 @@ namespace App\DataTransformer;
 
 use DateTime;
 use App\DTO\CategoryDto;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
 class CategoryDataTransformer extends BaseDataTransformer
@@ -49,7 +50,7 @@ class CategoryDataTransformer extends BaseDataTransformer
     public function transformOutput(array $category, array $groups): array
     {
         $dto = new CategoryDto($this->serializer, $this->validator);
-        $dto->id = $category['id'];
+        $dto->id = Uuid::fromString($category['id']);
         $dto->name = $category['name'];
         $dto->createdAt = new DateTime($category['created_at']);
         $dto->modifiedAt = new DateTime($category['modified_at']);

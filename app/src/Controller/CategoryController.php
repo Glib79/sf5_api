@@ -10,6 +10,7 @@ use App\Repository\CategoryRepository;
 use App\Service\CategoryManager;
 use App\Support\ValidationException;
 use Exception;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -79,11 +80,11 @@ class CategoryController extends BaseApiController
     
     /**
      * Delete category
-     * @param int $id
+     * @param string $id
      * @return JsonResponse
      * @Route("/category/{id}", name="category_delete", methods={"DELETE"})
      */
-    public function deleteCategory(int $id): JsonResponse
+    public function deleteCategory(string $id): JsonResponse
     {
         $category = $this->categoryRepository->getCategoryById($id);
         
@@ -112,11 +113,11 @@ class CategoryController extends BaseApiController
 
     /**
      * Get single category
-     * @param int $id
+     * @param string $id
      * @return JsonResponse
      * @Route("/category/{id}", name="category_get", methods={"GET"})
      */
-    public function getCategory(int $id): JsonResponse
+    public function getCategory(string $id): JsonResponse
     {
         $category = $this->categoryRepository->getCategoryById($id);
 
@@ -132,11 +133,11 @@ class CategoryController extends BaseApiController
     /**
      * Update category
      * @param Request $request
-     * @param int $id
+     * @param string $id
      * @return JsonResponse
      * @Route("/category/{id}", name="category_put", methods={"PUT"})
      */
-    public function updateCategory(Request $request, int $id): JsonResponse
+    public function updateCategory(Request $request, string $id): JsonResponse
     {
         try {
             $category = $this->categoryRepository->getCategoryById($id);
@@ -147,8 +148,8 @@ class CategoryController extends BaseApiController
 
             /** @var CategoryDto */
             $dto = $this->categoryDataTransformer->transformInput($request);
-            $dto->id = (int) $category['id'];
-
+            $dto->id = Uuid::fromString($category['id']);
+            
             $dto->validate([BaseDto::GROUP_UPDATE]);
             
             $this->categoryManager->updateCategory($dto);

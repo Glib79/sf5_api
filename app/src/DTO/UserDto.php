@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\DTO;
 
 use DateTime;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -11,7 +12,7 @@ class UserDto extends BaseDto
 {
     /**
      * @Groups({BaseDto::GROUP_SINGLE, BaseDto::GROUP_LIST})
-     * @var int
+     * @var Uuid
      */
     public $id;
     

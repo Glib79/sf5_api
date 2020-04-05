@@ -37,11 +37,12 @@ class UserRepository extends ServiceEntityRepository
      */
     public function createUser(UserDto $user): bool
     {
-        $sql = 'INSERT INTO user (email, password, roles, created_at, modified_at) 
-                VALUES (:email, :password, :roles, :createdAt, :modifiedAt);';
+        $sql = 'INSERT INTO user (id, email, password, roles, created_at, modified_at) 
+                VALUES (:id, :email, :password, :roles, :createdAt, :modifiedAt);';
         
         $stmt = $this->connection->prepare($sql);
         $stmt->execute([
+            'id'         => $user->id->toString(),
             'email'      => $user->email,
             'password'   => $user->password,
             'roles'      => json_encode($user->roles),

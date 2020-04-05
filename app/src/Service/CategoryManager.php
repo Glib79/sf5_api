@@ -6,6 +6,7 @@ namespace App\Service;
 use DateTime;
 use App\DTO\CategoryDto;
 use App\Repository\CategoryRepository;
+use Ramsey\Uuid\Uuid;
 
 class CategoryManager
 {
@@ -30,6 +31,7 @@ class CategoryManager
      */
     public function createCategory(CategoryDto $dto): bool
     {
+        $dto->id = Uuid::uuid4();
         $dto->createdAt = new DateTime();
         $dto->modifiedAt = new DateTime();
         
@@ -38,10 +40,10 @@ class CategoryManager
     
     /**
      * Delete Category
-     * @param int $id
+     * @param string $id
      * @return bool
      */
-    public function deleteCategory(int $id): bool
+    public function deleteCategory(string $id): bool
     {
         return $this->categoryRepository->deleteCategory($id);
     }

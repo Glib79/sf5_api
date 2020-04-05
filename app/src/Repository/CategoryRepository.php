@@ -6,6 +6,7 @@ namespace App\Repository;
 use App\DTO\BaseDto;
 use App\DTO\CategoryDto;
 use Doctrine\DBAL\Driver\Connection;
+use Ramsey\Uuid\Uuid;
 
 class CategoryRepository
 {
@@ -30,10 +31,12 @@ class CategoryRepository
      */
     public function addCategory(CategoryDto $category): bool
     {
-        $sql = 'INSERT INTO category (name, created_at, modified_at) VALUES (:name, :createdAt, :modifiedAt);';
+        $sql = 'INSERT INTO category (id, name, created_at, modified_at) 
+            VALUES (:id, :name, :createdAt, :modifiedAt);';
     
         $stmt = $this->connection->prepare($sql);
         $stmt->execute([
+            'id'         => $category->id->toString(),
             'name'       => $category->name,
             'createdAt'  => $category->createdAt->format(BaseDto::FORMAT_DATE_TIME_DB),
             'modifiedAt' => $category->modifiedAt->format(BaseDto::FORMAT_DATE_TIME_DB)
@@ -44,10 +47,10 @@ class CategoryRepository
     
     /**
      * Delete Category from database
-     * @param int $id
+     * @param string $id
      * @return bool
      */
-    public function deleteCategory(int $id): bool
+    public function deleteCategory(string $id): bool
     {
         $sql = 'DELETE FROM category WHERE id = :id;';
         
@@ -75,17 +78,17 @@ class CategoryRepository
     
     /**
      * Get single category by id
-     * @param int $id
+     * @param string $id
      * @return array
      */
-    public function getCategoryById(int $id): array
+    public function getCategoryById(string $id): array
     {
         $sql = 'SELECT * FROM category WHERE id = :id;';
         
         $stmt = $this->connection->prepare($sql);
         $stmt->execute(['id' => $id]);
         
-        return $stmt->fetch();
+        return $stmt->fetch() ?: [];
     }
      
     /**
@@ -101,7 +104,7 @@ class CategoryRepository
         $stmt->execute([
             'name'       => $category->name,
             'modifiedAt' => $category->modifiedAt->format(BaseDto::FORMAT_DATE_TIME_DB),
-            'id'         => $category->id
+            'id'         => $category->id->toString()
         ]);
         
         return true;

@@ -1,6 +1,6 @@
 # Base API Project Symfony 5
 
-Basic API project based on Symfony 5 using: doctrine, authentication JWT token (lexik/jwt-authentication-bundle), phpunit tests, dto + validation
+Basic API project based on Symfony 5 using: doctrine (for connection and authentication), authentication JWT token (lexik/jwt-authentication-bundle), phpunit tests, dto + validation, uuid (ramsey/uuid)
 
 ## Instalation guide:
 
@@ -16,7 +16,9 @@ Basic API project based on Symfony 5 using: doctrine, authentication JWT token (
 - docker-compose build
 - docker-compose up -d
 - docker-compose exec php composer install
-- docker-compose exec php bin/console doctrine:schema:create
+- docker-compose exec php bin/console doctrine:migrations:migrate
+
+Migration create database structure.
 
 ### Step 3 - add ssh keys
 Application needs ssh keys:
@@ -27,12 +29,6 @@ Generate ssh keys:
 
 Do not forget to put passphrase you typed during ssh key generation to `app/.env.local` JWT_PASSPHRASE like:
 `JWT_PASSPHRASE=your_passphrase`
-
-### Stpe 4 (optional) - run migration
-Migrations - if you would like to fill database with default values you can run migration:
-- docker-compose exec php bin/console doctrine:migrations:migrate
-
-Migration adds some data but does not create any users - to create user look for `Register` in `User guide`.
 
 ## Unit tests
 

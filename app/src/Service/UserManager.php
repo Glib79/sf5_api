@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use DateTime;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -65,6 +66,7 @@ class UserManager
      */
     public function createUser(UserDto $dto): bool
     {
+        $dto->id = Uuid::uuid4();
         $dto->roles = [self::ROLE_USER];
         
         $user = new User($dto->email);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\DTO;
 
 use DateTime;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -12,8 +13,8 @@ class CategoryDto extends BaseDto
     /**
      * @Groups({BaseDto::GROUP_SINGLE, BaseDto::GROUP_LIST})
      * @Assert\NotBlank(groups={BaseDto::GROUP_UPDATE})
-     * @Assert\Type(type="int", groups={BaseDto::GROUP_UPDATE})
-     * @var int
+     * @Assert\Type(type="object", groups={BaseDto::GROUP_UPDATE})
+     * @var Uuid
      */
     public $id;
     
