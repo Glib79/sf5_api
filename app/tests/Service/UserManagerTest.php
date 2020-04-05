@@ -7,9 +7,13 @@ use App\DTO\UserDto;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\UserManager;
+use DateTime;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\Uuid;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserManagerTest extends TestCase
 {
@@ -51,34 +55,40 @@ class UserManagerTest extends TestCase
      */
     public function testCreateUser()
     {
-        $userWithoutPass = new User('test@test.com');
+        $user = new User('test@test.com');
+        $user->setRoles(['ROLE_USER']);
         
         $encoder = $this->createMock(UserPasswordEncoderInterface::class);
         
         $encoder->expects($this->once())
             ->method('encodePassword')
-            ->with($userWithoutPass, 'password_string')
+            ->with($user, 'password_string')
             ->willReturn('encoded_password_string');
             
         $JWTManager = $this->createMock(JWTTokenManagerInterface::class);
         
         $JWTManager->expects($this->never())
             ->method($this->anything());
-
-        $userWithPass = new User('test@test.com');    
-        $userWithPass->setPassword('encoded_password_string');
-            
-        $userRepository = $this->createMock(UserRepository::class);
         
+        $serializer = $this->createMock(SerializerInterface::class);
+        $validator = $this->createMock(ValidatorInterface::class);
+
+        $userDtoRepository = new UserDto($serializer, $validator);
+        $userDtoRepository->email = 'test@test.com';
+        $userDtoRepository->password = 'encoded_password_string';
+        $userDtoRepository->roles = ['ROLE_USER'];
+        
+        $userRepository = $this->createMock(UserRepository::class);
+    
         $userRepository->expects($this->once())
-            ->method('create')
-            ->with($userWithPass)
+            ->method('createUser')
+            ->with($userDtoRepository)
             ->willReturn(true);
         
-        $userDto = new UserDto();
+        $userDto = new UserDto($serializer, $validator);
         $userDto->email = 'test@test.com';
-        $userDto->password = 'password_string';    
-            
+        $userDto->password = 'password_string';
+          
         $userManager = new UserManager($encoder, $JWTManager, $userRepository);
         
         $result = $userManager->createUser($userDto);

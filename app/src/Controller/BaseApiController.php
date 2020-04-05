@@ -61,25 +61,6 @@ class BaseApiController extends AbstractController
     }
    
     /**
-     * This method allows us to accept JSON payloads in POST requests
-     * since Symfony 4 doesn’t handle that automatically
-     * @param Request $request
-     * @return Request
-     */
-    protected function transformJsonBody(Request $request)
-    {
-        $data = json_decode($request->getContent(), true);
-
-        if ($data === null) {
-            return $request;
-        }
-
-        $request->request->replace($data);
-
-        return $request;
-    }
-    
-    /**
      * Returns a JSON response
      * @param array $data
      * @param int $statusCode

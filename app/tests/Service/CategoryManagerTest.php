@@ -4,10 +4,13 @@ declare(strict_types=1);
 namespace App\Tests\Service;
 
 use App\DTO\CategoryDto;
-use App\Entity\Category;
 use App\Repository\CategoryRepository;
 use App\Service\CategoryManager;
+use DateTime;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\Uuid;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CategoryManagerTest extends TestCase
 {
@@ -17,18 +20,18 @@ class CategoryManagerTest extends TestCase
      */
     public function testCreateCategory()
     {
-        $category = new Category();
-        $category->setName('name_string');
+        $serializer = $this->createMock(SerializerInterface::class);
+        $validator = $this->createMock(ValidatorInterface::class);
+        
+        $categoryDto = new CategoryDto($serializer, $validator);
+        $categoryDto->name = 'name_string';
         
         $categoryRepository = $this->createMock(CategoryRepository::class);
         
         $categoryRepository->expects($this->once())
-            ->method('create')
-            ->with($category)
+            ->method('addCategory')
+            ->with($categoryDto)
             ->willReturn(true);
-        
-        $categoryDto = new CategoryDto();
-        $categoryDto->name = 'name_string';
         
         $categoryManager = new CategoryManager($categoryRepository);
         
@@ -43,19 +46,16 @@ class CategoryManagerTest extends TestCase
      */
     public function testDeleteCategory()
     {
-        $category = new Category();
-        $category->setName('name_string');
-        
         $categoryRepository = $this->createMock(CategoryRepository::class);
         
         $categoryRepository->expects($this->once())
-            ->method('delete')
-            ->with($category)
+            ->method('deleteCategory')
+            ->with('uuid_string')
             ->willReturn(true);
         
         $categoryManager = new CategoryManager($categoryRepository);
         
-        $result = $categoryManager->deleteCategory($category);
+        $result = $categoryManager->deleteCategory('uuid_string');
         
         $this->assertTrue($result);
     }
@@ -66,23 +66,24 @@ class CategoryManagerTest extends TestCase
      */
     public function testUpdateCategory()
     {
-        $category = new Category();
-        $category->setName('name_string');
-
+        $serializer = $this->createMock(SerializerInterface::class);
+        $validator = $this->createMock(ValidatorInterface::class);
+        
+        $categoryDto = new CategoryDto($serializer, $validator);
+        $categoryDto->id = 'uuid_string';
+        $categoryDto->name = 'new_name_string';
+        
         $categoryRepository = $this->createMock(CategoryRepository::class);
         
         $categoryRepository->expects($this->once())
-            ->method('save')
+            ->method('updateCategory')
+            ->with($categoryDto)
             ->willReturn(true);
-            
-        $categoryDto = new CategoryDto();
-        $categoryDto->name = 'new_name_string';    
             
         $categoryManager = new CategoryManager($categoryRepository);
         
-        $result = $categoryManager->updateCategory($category, $categoryDto);
+        $result = $categoryManager->updateCategory($categoryDto);
         
         $this->assertTrue($result);
-        $this->assertSame('new_name_string', $category->getName());
     }
 }

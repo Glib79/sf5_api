@@ -3,10 +3,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use DateTime;
 use App\DTO\CategoryDto;
 use App\Repository\CategoryRepository;
-use Ramsey\Uuid\Uuid;
 
 class CategoryManager
 {
@@ -31,10 +29,6 @@ class CategoryManager
      */
     public function createCategory(CategoryDto $dto): bool
     {
-        $dto->id = Uuid::uuid4();
-        $dto->createdAt = new DateTime();
-        $dto->modifiedAt = new DateTime();
-        
         return $this->categoryRepository->addCategory($dto);
     }
     
@@ -55,8 +49,6 @@ class CategoryManager
      */
     public function updateCategory(CategoryDto $dto): bool
     {
-        $dto->modifiedAt = new DateTime();
-        
         return $this->categoryRepository->updateCategory($dto);
     }
 }

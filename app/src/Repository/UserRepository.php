@@ -6,9 +6,11 @@ namespace App\Repository;
 use App\DTO\BaseDto;
 use App\DTO\UserDto;
 use App\Entity\User;
+use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Driver\Connection;
+use Ramsey\Uuid\Uuid;
 
 class UserRepository extends ServiceEntityRepository
 {
@@ -41,13 +43,16 @@ class UserRepository extends ServiceEntityRepository
                 VALUES (:id, :email, :password, :roles, :createdAt, :modifiedAt);';
         
         $stmt = $this->connection->prepare($sql);
+        
+        $now = new DateTime();
+        
         $stmt->execute([
-            'id'         => $user->id->toString(),
+            'id'         => Uuid::uuid4()->toString(),
             'email'      => $user->email,
             'password'   => $user->password,
             'roles'      => json_encode($user->roles),
-            'createdAt'  => $user->createdAt->format(BaseDto::FORMAT_DATE_TIME_DB),
-            'modifiedAt' => $user->modifiedAt->format(BaseDto::FORMAT_DATE_TIME_DB)
+            'createdAt'  => $now->format(BaseDto::FORMAT_DATE_TIME_DB),
+            'modifiedAt' => $now->format(BaseDto::FORMAT_DATE_TIME_DB)
         ]);
         
         return true;

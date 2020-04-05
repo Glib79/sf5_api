@@ -5,6 +5,7 @@ namespace App\Repository;
 
 use App\DTO\BaseDto;
 use App\DTO\CategoryDto;
+use DateTime;
 use Doctrine\DBAL\Driver\Connection;
 use Ramsey\Uuid\Uuid;
 
@@ -35,11 +36,14 @@ class CategoryRepository
             VALUES (:id, :name, :createdAt, :modifiedAt);';
     
         $stmt = $this->connection->prepare($sql);
+        
+        $now = new DateTime();
+        
         $stmt->execute([
-            'id'         => $category->id->toString(),
+            'id'         => Uuid::uuid4()->toString(),
             'name'       => $category->name,
-            'createdAt'  => $category->createdAt->format(BaseDto::FORMAT_DATE_TIME_DB),
-            'modifiedAt' => $category->modifiedAt->format(BaseDto::FORMAT_DATE_TIME_DB)
+            'createdAt'  => $now->format(BaseDto::FORMAT_DATE_TIME_DB),
+            'modifiedAt' => $now->format(BaseDto::FORMAT_DATE_TIME_DB)
         ]);
         
         return true;
@@ -101,9 +105,12 @@ class CategoryRepository
         $sql = 'UPDATE category SET name = :name, modified_at = :modifiedAt WHERE id = :id;';
         
         $stmt = $this->connection->prepare($sql);
+        
+        $now = new DateTime();
+        
         $stmt->execute([
             'name'       => $category->name,
-            'modifiedAt' => $category->modifiedAt->format(BaseDto::FORMAT_DATE_TIME_DB),
+            'modifiedAt' => $now->format(BaseDto::FORMAT_DATE_TIME_DB),
             'id'         => $category->id->toString()
         ]);
         
