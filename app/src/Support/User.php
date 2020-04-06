@@ -1,23 +1,24 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Entity;
+namespace App\Support;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Rfc4122\UuidInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * This entity is only for authentication - it's needed by UserInterface
- * @ORM\Entity
+ * This object is for internal use only (create user, authentication and user inside application)
+ * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @ORM\Table(name="user")
  */
 class User implements UserInterface
 {
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="uuid")
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
     
@@ -41,9 +42,12 @@ class User implements UserInterface
      * User constructor.
      * @param $email
      */
-    public function __construct($email)
+    public function __construct(string $email, ?UuidInterface $id = null)
     {
         $this->email = $email;
+        if ($id) {
+            $this->id = $id;
+        }
     }
 
     /**

@@ -5,14 +5,18 @@ namespace App\Repository;
 
 use App\DTO\BaseDto;
 use App\DTO\UserDto;
-use App\Entity\User;
+use App\Support\User;
 use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Driver\Connection;
+use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
+use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 
-class UserRepository extends ServiceEntityRepository
+/**
+ * extends ServiceEntityRepository is needed because we have authentication base on UserInterface which needs User Entity and Repository
+ */
+class UserRepository extends ServiceEntityRepository implements UserLoaderInterface
 {
     /**
      * @var Connection
@@ -20,15 +24,11 @@ class UserRepository extends ServiceEntityRepository
     private $connection;
     
     /**
-     * UserRepository constructor
-     * ManagerRegistry is needed because we have authentication base on UserInterface which needs User Entity and Repository 
+     * UserRepository constructor 
      * @param Connection $connection
-     * @param ManagerRegistry $registry
      */
-    public function __construct(Connection $connection, ManagerRegistry $registry)
+    public function __construct(Connection $connection)
     {
-        parent::__construct($registry, User::class);
-        
         $this->connection = $connection;
     }
     
@@ -56,6 +56,33 @@ class UserRepository extends ServiceEntityRepository
         ]);
         
         return true;
+    }
+    
+    /**
+     * Mathod required by UserLoaderInterface for authentication
+     * @param string $username
+     * @throws InvalidArgumentException
+     * @return User
+     */
+    public function loadUserByUsername(string $username): User
+    {
+        $sql = 'SELECT id, email, password, roles FROM user WHERE email = :email;';
+        
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute([
+            'email' => $username,
+        ]);
+        $data = $stmt->fetch();
+        
+        if (!$data) {
+            throw new InvalidArgumentException('No user!');
+        }
+        
+        $user = new User($data['email'], Uuid::fromString($data['id']));
+        $user->setPassword($data['password'])
+            ->setRoles(json_decode($data['roles']));
+            
+        return $user;
     }
 }
 

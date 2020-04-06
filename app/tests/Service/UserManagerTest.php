@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace App\Tests\Service;
 
 use App\DTO\UserDto;
-use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\UserManager;
+use App\Support\User;
 use DateTime;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use PHPUnit\Framework\TestCase;

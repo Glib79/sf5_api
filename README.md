@@ -1,6 +1,6 @@
 # Base API Project Symfony 5
 
-Basic API project based on Symfony 5 using: doctrine (for connection and authentication), authentication JWT token (lexik/jwt-authentication-bundle), phpunit tests, dto + validation, uuid (ramsey/uuid)
+Basic API project based on Symfony 5 using: doctrine (for connection), authentication JWT token (lexik/jwt-authentication-bundle), phpunit tests, dto + validation, uuid (ramsey/uuid-doctrine)
 
 ## Instalation guide:
 

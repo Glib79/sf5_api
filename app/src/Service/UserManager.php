@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\DTO\UserDto;
-use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Support\User;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
