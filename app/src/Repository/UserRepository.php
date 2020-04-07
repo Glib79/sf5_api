@@ -39,5 +39,20 @@ class UserRepository extends BaseRepository
         
         return $stmt->errorCode() === '00000';
     }
+    
+    /**
+     * Get single user by id
+     * @param string $id
+     * @return array
+     */
+    public function getUserById(string $id): array
+    {
+        $sql = 'SELECT * FROM user WHERE id = :id;';
+        
+        $stmt = $this->readConn->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        
+        return $stmt->fetch() ?: [];
+    }
 }
 

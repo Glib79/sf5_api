@@ -12,8 +12,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class BaseApiController extends AbstractController
 {
-    public const DEFAULT_RESPONSE_DATETIME_FORMAT = 'Y-m-d H:i:s';
-    
     /**
      * Sets data
      * @param array $data

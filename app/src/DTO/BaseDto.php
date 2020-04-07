@@ -6,6 +6,7 @@ namespace App\DTO;
 use App\Support\ValidationException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 abstract class BaseDto
 {
@@ -17,6 +18,7 @@ abstract class BaseDto
     public const GROUP_SINGLE = 'single';
     //formats
     public const FORMAT_DATE_TIME_DB = 'Y-m-d H:i:s';
+    public const FORMAT_RATE_TIME_RESPONSE = 'Y-m-d H:i:s';
     
     /**
      * @var SerializerInterface
@@ -62,6 +64,13 @@ abstract class BaseDto
      */
     public function normalize(array $groups): array
     {
-        return $this->serializer->normalize($this, null, ['groups' => $groups]);
+        return $this->serializer->normalize(
+            $this, 
+            null, 
+            [
+                'groups' => $groups, 
+                DateTimeNormalizer::FORMAT_KEY => self::FORMAT_RATE_TIME_RESPONSE
+            ]
+        );
     }
 }

@@ -6,6 +6,7 @@ namespace App\Controller;
 use App\DataTransformer\UserDataTransformer;
 use App\DTO\BaseDto;
 use App\DTO\UserDto;
+use App\Repository\UserRepository;
 use App\Service\UserManager;
 use App\Support\ValidationException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,30 +27,43 @@ class AuthController extends BaseApiController
      * @var UserManager
      */
     private $userManager;
+   
+    /**
+     * @var UserRepository
+     */
+    private $userRepository;
     
     /**
      * AuthController constructor
      * @param UserDataTransformer $userDataTransformer
      * @param UserManager $userManager
+     * @param UserRepository $userRepository
      */
-    public function __construct(UserDataTransformer $userDataTransformer, UserManager $userManager)
+    public function __construct(
+        UserDataTransformer $userDataTransformer, 
+        UserManager $userManager,
+        UserRepository $userRepository
+    )
     {
         $this->userDataTransformer = $userDataTransformer;
         $this->userManager = $userManager;
+        $this->userRepository = $userRepository;
     }
     
     /**
      * Login user
      * @param UserInterface $user
-     * @param JWTTokenManagerInterface $JWTManager
      * @return JsonResponse
      * @Route("/auth/login_check", name="login_check", methods={"POST"})
      */
     public function getTokenUser(UserInterface $user)
     {
+        $data = $this->userRepository->getUserById($user->getId()->toString());
+        
         return $this->responseWithData(
             [
-                'token' => $this->userManager->generateJWTToken($user)
+                'token' => $this->userManager->generateJWTToken($user),
+                'user'  => $this->userDataTransformer->transformOutput($data, [BaseDto::GROUP_SINGLE])
             ],
             Response::HTTP_OK
         );

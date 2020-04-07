@@ -83,6 +83,15 @@ class User implements UserInterface
     /**
      * Getters and setters
      */
+
+    /**
+     * Get Id
+     * @return UuidInterface
+     */
+    public function getId(): UuidInterface
+    {
+        return $this->id;
+    }
     
     /**
      * Get Email - Email is also username
