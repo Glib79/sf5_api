@@ -5,6 +5,7 @@ namespace App\Service;
 
 use App\DTO\CategoryDto;
 use App\Repository\CategoryRepository;
+use Exception;
 
 class CategoryManager
 {
@@ -25,30 +26,33 @@ class CategoryManager
     /**
      * Create category from dto
      * @param CategoryDto $dto
-     * @return bool
      */
-    public function createCategory(CategoryDto $dto): bool
+    public function createCategory(CategoryDto $dto): void
     {
-        return $this->categoryRepository->addCategory($dto);
+        if (!$this->categoryRepository->addCategory($dto)) {
+            throw new Exception('Database error!');
+        }
     }
     
     /**
      * Delete Category
      * @param string $id
-     * @return bool
      */
-    public function deleteCategory(string $id): bool
+    public function deleteCategory(string $id): void
     {
-        return $this->categoryRepository->deleteCategory($id);
+        if (!$this->categoryRepository->deleteCategory($id)) {
+            throw new Exception('Database error!');
+        }
     }
     
     /**
      * Update Category
      * @param CategoryDto $dto
-     * @return bool
      */
-    public function updateCategory(CategoryDto $dto): bool
+    public function updateCategory(CategoryDto $dto): void
     {
-        return $this->categoryRepository->updateCategory($dto);
+        if (!$this->categoryRepository->updateCategory($dto)) {
+            throw new Exception('Database error!');
+        }
     }
 }

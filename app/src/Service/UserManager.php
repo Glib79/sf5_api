@@ -60,9 +60,8 @@ class UserManager
      * Create User fro dto
      * @param string $email
      * @param string $password
-     * @return bool
      */
-    public function createUser(UserDto $dto): bool
+    public function createUser(UserDto $dto): void
     {
         $dto->roles = [self::ROLE_USER];
         
@@ -71,6 +70,8 @@ class UserManager
         
         $dto->password = $this->encoder->encodePassword($user, $dto->password);
         
-        return $this->userRepository->createUser($dto);
+        if (!$this->userRepository->createUser($dto)) {
+            throw new Exception('Database error!');
+        }
     }
 }

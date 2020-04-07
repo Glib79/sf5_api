@@ -8,12 +8,12 @@ use App\DTO\BaseDto;
 use App\DTO\UserDto;
 use App\Service\UserManager;
 use App\Support\ValidationException;
-use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Throwable;
 
 class AuthController extends BaseApiController
 {
@@ -77,8 +77,8 @@ class AuthController extends BaseApiController
             );
         } catch (ValidationException $e) {
             return $this->responseWithError($e->getMessage(), Response::HTTP_BAD_REQUEST);
-        } catch (Exception $e) {
-            return $this->responseWithError('User can not be created '.$e->getMessage(), Response::HTTP_BAD_REQUEST);
+        } catch (Throwable $e) {
+            return $this->responseWithError('User has not been created!', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

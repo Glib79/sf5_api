@@ -5,7 +5,7 @@ Basic API project based on Symfony 5 using: doctrine (for connection), authentic
 ## Instalation guide:
 
 ### Step 1 - prepare project
-- git clone project from https://github.com/Glib79/Project_name
+- git clone project from https://github.com/Glib79/sf5_api
 - rename `.env.example` file to `.env`
 - edit `.env` and setup database credentials (MYSQL_ROOT_PASSWORD, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD), it's for database which will be created in docker container.
 - rename `app/.env.example` to `app/.env`

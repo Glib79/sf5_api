@@ -21,7 +21,7 @@ class BaseApiController extends AbstractController
      * @param array|null $headers
      * @return JsonResponse
      */
-    public function responseWithData(array $data, ?int $statusCode = Response::HTTP_OK, ?array $headers = []): JsonResponse
+    public function responseWithData(array $data, int $statusCode = Response::HTTP_OK, array $headers = []): JsonResponse
     {
         return $this->response($data, $statusCode, $headers);
     }
@@ -33,7 +33,7 @@ class BaseApiController extends AbstractController
      * @param array|null $headers
      * @return JsonResponse
      */
-    public function responseWithError(string $error, int $statusCode, ?array $headers = []): JsonResponse
+    public function responseWithError(string $error, int $statusCode, array $headers = []): JsonResponse
     {
         $data = [
             'status' => $statusCode,
@@ -50,7 +50,7 @@ class BaseApiController extends AbstractController
      * @param array|null $headers
      * @return JsonResponse
      */
-    public function responseWithSuccess(string $success, int $statusCode, ?array $headers = []): JsonResponse
+    public function responseWithSuccess(string $success, int $statusCode, array $headers = []): JsonResponse
     {
         $data = [
             'status' => $statusCode,
@@ -67,7 +67,7 @@ class BaseApiController extends AbstractController
      * @param array|null $headers
      * @return JsonResponse
      */
-    private function response(array $data, int $statusCode, ?array $headers = []): JsonResponse
+    private function response(array $data, int $statusCode, array $headers = []): JsonResponse
     {
         return new JsonResponse($data, $statusCode, $headers);
     }

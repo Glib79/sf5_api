@@ -9,12 +9,12 @@ use App\DTO\CategoryDto;
 use App\Repository\CategoryRepository;
 use App\Service\CategoryManager;
 use App\Support\ValidationException;
-use Exception;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Throwable;
 
 /**
  * @Route("/api", name="category_api")
@@ -57,7 +57,6 @@ class CategoryController extends BaseApiController
      * Add category
      * @param Request $request
      * @return JsonResponse
-     * @throws Exception
      * @Route("/category", name="category_add", methods={"POST"})
      */
     public function addCategory(Request $request): JsonResponse
@@ -73,8 +72,8 @@ class CategoryController extends BaseApiController
             return $this->responseWithSuccess("Category created", Response::HTTP_CREATED);
         } catch (ValidationException $e) {
             return $this->responseWithError($e->getMessage(), Response::HTTP_BAD_REQUEST);
-        } catch (Exception $e) {
-            return $this->responseWithError("Data no valid", Response::HTTP_BAD_REQUEST);
+        } catch (Throwable $e) {
+            return $this->responseWithError("Category has not been created!", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -92,9 +91,13 @@ class CategoryController extends BaseApiController
             return $this->responseWithError("Category not found", Response::HTTP_NOT_FOUND);
         }
         
-        $this->categoryManager->deleteCategory($id);
-        
-        return $this->responseWithSuccess("Category deleted", Response::HTTP_OK);
+        try {
+            $this->categoryManager->deleteCategory($id);
+            
+            return $this->responseWithSuccess("Category deleted", Response::HTTP_OK);
+        } catch (Throwable $e) {
+            return $this->responseWithError("Category has not been deleted!", Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
     
     /**
@@ -157,8 +160,8 @@ class CategoryController extends BaseApiController
             return $this->responseWithSuccess("Category updated", Response::HTTP_OK);
         } catch (ValidationException $e) {
             return $this->responseWithError($e->getMessage(), Response::HTTP_BAD_REQUEST);
-        } catch (Exception $e) {
-            return $this->responseWithError("Data no valid", Response::HTTP_BAD_REQUEST);
+        } catch (Throwable $e) {
+            return $this->responseWithError("Category has not been updated!", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

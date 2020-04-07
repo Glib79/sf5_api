@@ -6,25 +6,10 @@ namespace App\Repository;
 use App\DTO\BaseDto;
 use App\DTO\CategoryDto;
 use DateTime;
-use Doctrine\DBAL\Driver\Connection;
 use Ramsey\Uuid\Uuid;
 
-class CategoryRepository
+class CategoryRepository extends BaseRepository
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
-    
-    /**
-     * CategoryRepository constructor
-     * @param Connection $connection
-     */
-    public function __construct(Connection $connection)
-    {
-        $this->connection = $connection;
-    }
-    
     /**
      * Add new category to database
      * @param CategoryDto $category
@@ -35,7 +20,7 @@ class CategoryRepository
         $sql = 'INSERT INTO category (id, name, created_at, modified_at) 
             VALUES (:id, :name, :createdAt, :modifiedAt);';
     
-        $stmt = $this->connection->prepare($sql);
+        $stmt = $this->writeConn->prepare($sql);
         
         $now = new DateTime();
         
@@ -46,7 +31,7 @@ class CategoryRepository
             'modifiedAt' => $now->format(BaseDto::FORMAT_DATE_TIME_DB)
         ]);
         
-        return true;
+        return $stmt->errorCode() === '00000';
     }
     
     /**
@@ -58,12 +43,12 @@ class CategoryRepository
     {
         $sql = 'DELETE FROM category WHERE id = :id;';
         
-        $stmt = $this->connection->prepare($sql);
+        $stmt = $this->writeConn->prepare($sql);
         $stmt->execute([
             'id' => $id
         ]);
         
-        return true;
+        return $stmt->errorCode() === '00000';
     }
     
     /**
@@ -74,7 +59,7 @@ class CategoryRepository
     {
         $sql = 'SELECT * FROM category;';
         
-        $stmt = $this->connection->prepare($sql);
+        $stmt = $this->readConn->prepare($sql);
         $stmt->execute();
         
         return $stmt->fetchAll();
@@ -89,7 +74,7 @@ class CategoryRepository
     {
         $sql = 'SELECT * FROM category WHERE id = :id;';
         
-        $stmt = $this->connection->prepare($sql);
+        $stmt = $this->readConn->prepare($sql);
         $stmt->execute(['id' => $id]);
         
         return $stmt->fetch() ?: [];
@@ -104,7 +89,7 @@ class CategoryRepository
     {
         $sql = 'UPDATE category SET name = :name, modified_at = :modifiedAt WHERE id = :id;';
         
-        $stmt = $this->connection->prepare($sql);
+        $stmt = $this->writeConn->prepare($sql);
         
         $now = new DateTime();
         
@@ -114,7 +99,7 @@ class CategoryRepository
             'id'         => $category->id->toString()
         ]);
         
-        return true;
+        return $stmt->errorCode() === '00000';
     }
 }
 

@@ -29,32 +29,4 @@ abstract class BaseDataTransformer
         $this->serializer = $serializer;
         $this->validator = $validator;
     }
-    
-    /**
-     * Validate Dto object
-     * @param object $dto
-     * @param array $groups
-     * @return bool
-     */
-    protected function validate(object $dto, array $groups): bool
-    {
-        $validationErrors = $this->validator->validate($dto, null, $groups);
-        
-        if (count($validationErrors) > 0) {
-            throw new ValidationException((string) $validationErrors);
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Serialize Dto object to JSON string
-     * @param object $dto
-     * @param array $groups
-     * @return string
-     */
-    protected function serialize(object $dto, array $groups): string
-    {
-        return $this->serializer->serialize($dto, 'json', ['groups' => $groups]);
-    }
 }

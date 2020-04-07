@@ -9,6 +9,7 @@ use App\Support\User;
 use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\Persistence\ManagerRegistry;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
@@ -21,15 +22,21 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
     /**
      * @var Connection
      */
-    private $connection;
+    private $readConn;
     
     /**
-     * UserRepository constructor 
+     * @var Connection
+     */
+    private $writeConn;
+    
+    /**
+     * CategoryRepository constructor
      * @param Connection $connection
      */
-    public function __construct(Connection $connection)
+    public function __construct(ManagerRegistry $doctrine)
     {
-        $this->connection = $connection;
+        $this->readConn = $doctrine->getConnection('default');
+        $this->writeConn = $doctrine->getConnection('write');
     }
     
     /**
@@ -42,7 +49,7 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
         $sql = 'INSERT INTO user (id, email, password, roles, created_at, modified_at) 
                 VALUES (:id, :email, :password, :roles, :createdAt, :modifiedAt);';
         
-        $stmt = $this->connection->prepare($sql);
+        $stmt = $this->writeConn->prepare($sql);
         
         $now = new DateTime();
         
@@ -55,7 +62,7 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
             'modifiedAt' => $now->format(BaseDto::FORMAT_DATE_TIME_DB)
         ]);
         
-        return true;
+        return $stmt->errorCode() === '00000';
     }
     
     /**
@@ -68,7 +75,7 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
     {
         $sql = 'SELECT id, email, password, roles FROM user WHERE email = :email;';
         
-        $stmt = $this->connection->prepare($sql);
+        $stmt = $this->readConn->prepare($sql);
         $stmt->execute([
             'email' => $username,
         ]);
