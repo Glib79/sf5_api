@@ -19,7 +19,7 @@ abstract class BaseRepository
     protected $writeConn;
     
     /**
-     * CategoryRepository constructor
+     * BaseRepository constructor
      * @param Connection $connection
      */
     public function __construct(ManagerRegistry $doctrine)

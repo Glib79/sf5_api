@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * This object is for internal use only (create user, authentication and user inside application)
- * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\AuthRepository")
  * @ORM\Table(name="user")
  */
 class User implements UserInterface

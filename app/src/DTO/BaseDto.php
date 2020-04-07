@@ -29,7 +29,7 @@ abstract class BaseDto
     private $validator;
     
     /**
-     * BaseDataTransformer constructor
+     * BaseDto constructor
      * @param SerializerInterface $serializer
      * @param ValidatorInterface $validator
      */
