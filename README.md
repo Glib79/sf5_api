@@ -37,36 +37,46 @@ To run unit tests use command:
 
 ## User guide:
 
-Register: POST `/auth/register` with data:
+**Register**: POST `/auth/register` with data:
 
     {
 	    "email": "test@test.com",
 	    "password": "test123"
     }
 
-Login: POST `/auth/login_check` with data:
+**Login**: POST `/auth/login_check` with data:
 
     {
         "username": "test@test.com",
         "password": "test123"
     }
 
-You should receive Bearer token - use this token to authenticate yourself in further requests.
+You should receive Bearer token - **use this token to authenticate yourself** in further requests.
 
-Add Category: POST `/api/category` with data:
+**Add Category**: POST `/api/category` with data:
 
 	{
 		"name": "Category Name"
 	}
 
-Update category: PUT `/api/category/{id}` (replace {id} with id category to update) with data:
+**Update category**: PUT `/api/category/{id}` (replace {id} with id category to update) with data:
 
 	{
 		"name": "New Category Name"
 	}
 	
-Categories list: GET `/api/categories`
+**Categories list**: GET `/api/categories`
 
-Single category: GET `/api/category/{id}`  (replace {id} with id category to show)
+**Single category**: GET `/api/category/{id}`  (replace {id} with id category to show)
 
-Delete category: DELETE `/api/category/{id}`  (replace {id} with id category to delete)
+**Delete category**: DELETE `/api/category/{id}`  (replace {id} with id category to delete)
+
+**Example** curl request (replace: `localhost` in `--url http://localhost/api/category` with your domain and  `your_token` in `--header 'authorization: Bearer your_token'` with token received from `/auth/login_check`):
+
+    curl --request POST \
+      --url http://localhost/api/category \
+      --header 'authorization: Bearer your_token' \
+      --header 'content-type: application/json' \
+      --data '{
+	    "name": "Category name"
+      }'
