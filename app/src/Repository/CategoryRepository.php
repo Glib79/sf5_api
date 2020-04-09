@@ -13,25 +13,28 @@ class CategoryRepository extends BaseRepository
     /**
      * Add new category to database
      * @param CategoryDto $category
-     * @return bool
+     * @return string $id - created record id
      */
-    public function addCategory(CategoryDto $category): bool
+    public function addCategory(CategoryDto $category): string
     {
         $sql = 'INSERT INTO category (id, name, created_at, modified_at) 
             VALUES (:id, :name, :createdAt, :modifiedAt);';
-    
-        $stmt = $this->writeConn->prepare($sql);
         
         $now = new DateTime();
+        $id = Uuid::uuid4()->toString();
         
-        $stmt->execute([
-            'id'         => Uuid::uuid4()->toString(),
-            'name'       => $category->name,
-            'createdAt'  => $now->format(BaseDto::FORMAT_DATE_TIME_DB),
-            'modifiedAt' => $now->format(BaseDto::FORMAT_DATE_TIME_DB)
-        ]);
+        $stmt = $this->execute(
+            $this->writeConn, 
+            $sql,
+            [
+                'id'         => $id,
+                'name'       => $category->name,
+                'createdAt'  => $now->format(BaseDto::FORMAT_DATE_TIME_DB),
+                'modifiedAt' => $now->format(BaseDto::FORMAT_DATE_TIME_DB)
+            ]
+        );
         
-        return $stmt->errorCode() === '00000';
+        return $id;
     }
     
     /**
@@ -39,16 +42,11 @@ class CategoryRepository extends BaseRepository
      * @param string $id
      * @return bool
      */
-    public function deleteCategory(string $id): bool
+    public function deleteCategory(string $id): void
     {
         $sql = 'DELETE FROM category WHERE id = :id;';
         
-        $stmt = $this->writeConn->prepare($sql);
-        $stmt->execute([
-            'id' => $id
-        ]);
-        
-        return $stmt->errorCode() === '00000';
+        $stmt = $this->execute($this->writeConn, $sql, ['id' => $id]);
     }
     
     /**
@@ -59,8 +57,7 @@ class CategoryRepository extends BaseRepository
     {
         $sql = 'SELECT * FROM category;';
         
-        $stmt = $this->readConn->prepare($sql);
-        $stmt->execute();
+        $stmt = $this->execute($this->readConn, $sql);
         
         return $stmt->fetchAll();
     }
@@ -74,8 +71,7 @@ class CategoryRepository extends BaseRepository
     {
         $sql = 'SELECT * FROM category WHERE id = :id;';
         
-        $stmt = $this->readConn->prepare($sql);
-        $stmt->execute(['id' => $id]);
+        $stmt = $this->execute($this->readConn, $sql, ['id' => $id]);
         
         return $stmt->fetch() ?: [];
     }
@@ -83,23 +79,22 @@ class CategoryRepository extends BaseRepository
     /**
      * Update category in database
      * @param CategoryDto $category
-     * @return bool
      */
-    public function updateCategory(CategoryDto $category): bool
+    public function updateCategory(CategoryDto $category): void
     {
         $sql = 'UPDATE category SET name = :name, modified_at = :modifiedAt WHERE id = :id;';
         
-        $stmt = $this->writeConn->prepare($sql);
-        
         $now = new DateTime();
         
-        $stmt->execute([
-            'name'       => $category->name,
-            'modifiedAt' => $now->format(BaseDto::FORMAT_DATE_TIME_DB),
-            'id'         => $category->id->toString()
-        ]);
-        
-        return $stmt->errorCode() === '00000';
+        $stmt = $this->execute(
+            $this->writeConn, 
+            $sql, 
+            [
+                'name'       => $category->name,
+                'modifiedAt' => $now->format(BaseDto::FORMAT_DATE_TIME_DB),
+                'id'         => $category->id->toString()
+            ]
+        );
     }
 }
 

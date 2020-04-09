@@ -8,7 +8,7 @@ use App\DTO\BaseDto;
 use App\DTO\CategoryDto;
 use App\Repository\CategoryRepository;
 use App\Service\CategoryManager;
-use App\Support\ValidationException;
+use App\Support\Error\ValidationException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -67,13 +67,13 @@ class CategoryController extends BaseApiController
             
             $dto->validate([BaseDto::GROUP_CREATE]);
             
-            $this->categoryManager->createCategory($dto);
+            $id = $this->categoryManager->createCategory($dto);
             
-            return $this->responseWithSuccess("Category created", Response::HTTP_CREATED);
+            return $this->response(Response::HTTP_CREATED, 'Category created', ['id' => $id]);
         } catch (ValidationException $e) {
-            return $this->responseWithError($e->getMessage(), Response::HTTP_BAD_REQUEST);
+            return $this->response(Response::HTTP_BAD_REQUEST, $e->getMessage());
         } catch (Throwable $e) {
-            return $this->responseWithError("Category has not been created!", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->response(Response::HTTP_INTERNAL_SERVER_ERROR, 'Category has not been created!');
         }
     }
     
@@ -88,15 +88,15 @@ class CategoryController extends BaseApiController
         $category = $this->categoryRepository->getCategoryById($id);
         
         if (!$category) {
-            return $this->responseWithError("Category not found", Response::HTTP_NOT_FOUND);
+            return $this->response(Response::HTTP_NOT_FOUND, 'Category not found');
         }
         
         try {
             $this->categoryManager->deleteCategory($id);
             
-            return $this->responseWithSuccess("Category deleted", Response::HTTP_OK);
+            return $this->response(Response::HTTP_OK, 'Category deleted');
         } catch (Throwable $e) {
-            return $this->responseWithError("Category has not been deleted!", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->response(Response::HTTP_INTERNAL_SERVER_ERROR, 'Category has not been deleted!');
         }
     }
     
@@ -111,7 +111,12 @@ class CategoryController extends BaseApiController
         
         $outputList = $this->categoryDataTransformer->transformList($data, [BaseDto::GROUP_LIST]);
         
-        return $this->responseWithData($outputList);
+        return $this->response(
+            Response::HTTP_OK, 
+            'Categories found', 
+            $outputList, 
+            ['count' => count($outputList)]
+        );
     }
 
     /**
@@ -125,12 +130,12 @@ class CategoryController extends BaseApiController
         $category = $this->categoryRepository->getCategoryById($id);
 
         if (!$category) {
-            return $this->responseWithError("Category not found", Response::HTTP_NOT_FOUND);
+            return $this->response(Response::HTTP_NOT_FOUND, 'Category not found');
         }
         
         $output = $this->categoryDataTransformer->transformOutput($category, [BaseDto::GROUP_SINGLE]);
 
-        return $this->responseWithData($output);
+        return $this->response(Response::HTTP_OK, 'Category found', $output);
     }
 
     /**
@@ -146,7 +151,7 @@ class CategoryController extends BaseApiController
             $category = $this->categoryRepository->getCategoryById($id);
 
             if (!$category) {
-                return $this->responseWithError("Category not found", Response::HTTP_NOT_FOUND);
+                return $this->response(Response::HTTP_NOT_FOUND, 'Category not found');
             }
 
             /** @var CategoryDto */
@@ -157,11 +162,11 @@ class CategoryController extends BaseApiController
             
             $this->categoryManager->updateCategory($dto);
 
-            return $this->responseWithSuccess("Category updated", Response::HTTP_OK);
+            return $this->response(Response::HTTP_OK, 'Category updated');
         } catch (ValidationException $e) {
-            return $this->responseWithError($e->getMessage(), Response::HTTP_BAD_REQUEST);
+            return $this->response(Response::HTTP_BAD_REQUEST, $e->getMessage());
         } catch (Throwable $e) {
-            return $this->responseWithError("Category has not been updated!", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->response(Response::HTTP_INTERNAL_SERVER_ERROR, 'Category has not been updated!');
         }
     }
 }

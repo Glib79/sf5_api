@@ -26,12 +26,11 @@ class CategoryManager
     /**
      * Create category from dto
      * @param CategoryDto $dto
+     * @return string $id - created record id
      */
-    public function createCategory(CategoryDto $dto): void
+    public function createCategory(CategoryDto $dto): string
     {
-        if (!$this->categoryRepository->addCategory($dto)) {
-            throw new Exception('Database error!');
-        }
+        return $this->categoryRepository->addCategory($dto);
     }
     
     /**
@@ -40,9 +39,7 @@ class CategoryManager
      */
     public function deleteCategory(string $id): void
     {
-        if (!$this->categoryRepository->deleteCategory($id)) {
-            throw new Exception('Database error!');
-        }
+        $this->categoryRepository->deleteCategory($id);
     }
     
     /**
@@ -51,8 +48,6 @@ class CategoryManager
      */
     public function updateCategory(CategoryDto $dto): void
     {
-        if (!$this->categoryRepository->updateCategory($dto)) {
-            throw new Exception('Database error!');
-        }
+        $this->categoryRepository->updateCategory($dto);
     }
 }

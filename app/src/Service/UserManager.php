@@ -60,8 +60,9 @@ class UserManager
      * Create User fro dto
      * @param string $email
      * @param string $password
+     * @return string $id - created record id
      */
-    public function createUser(UserDto $dto): void
+    public function createUser(UserDto $dto): string
     {
         $dto->roles = [self::ROLE_USER];
         
@@ -70,8 +71,6 @@ class UserManager
         
         $dto->password = $this->encoder->encodePassword($user, $dto->password);
         
-        if (!$this->userRepository->createUser($dto)) {
-            throw new Exception('Database error!');
-        }
+        return $this->userRepository->createUser($dto);
     }
 }

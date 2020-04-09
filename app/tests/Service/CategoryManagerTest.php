@@ -36,6 +36,8 @@ class CategoryManagerTest extends TestCase
         $categoryManager = new CategoryManager($categoryRepository);
         
         $result = $categoryManager->createCategory($categoryDto);
+        
+        $this->assertIsString($result);
     }
     
     /**
@@ -53,7 +55,7 @@ class CategoryManagerTest extends TestCase
         
         $categoryManager = new CategoryManager($categoryRepository);
         
-        $result = $categoryManager->deleteCategory('uuid_string');
+        $categoryManager->deleteCategory('uuid_string');
     }
     
     /**
@@ -78,6 +80,6 @@ class CategoryManagerTest extends TestCase
             
         $categoryManager = new CategoryManager($categoryRepository);
         
-        $result = $categoryManager->updateCategory($categoryDto);
+        $categoryManager->updateCategory($categoryDto);
     }
 }

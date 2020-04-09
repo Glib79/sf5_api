@@ -92,5 +92,7 @@ class UserManagerTest extends TestCase
         $userManager = new UserManager($encoder, $JWTManager, $userRepository);
         
         $result = $userManager->createUser($userDto);
+        
+        $this->assertIsString($result);
     }
 }

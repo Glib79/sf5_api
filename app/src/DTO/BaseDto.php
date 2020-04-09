@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\DTO;
 
-use App\Support\ValidationException;
+use App\Support\Error\ValidationException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;

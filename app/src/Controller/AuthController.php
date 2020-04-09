@@ -8,7 +8,7 @@ use App\DTO\BaseDto;
 use App\DTO\UserDto;
 use App\Repository\UserRepository;
 use App\Service\UserManager;
-use App\Support\ValidationException;
+use App\Support\Error\ValidationException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -56,16 +56,17 @@ class AuthController extends BaseApiController
      * @return JsonResponse
      * @Route("/auth/login_check", name="login_check", methods={"POST"})
      */
-    public function getTokenUser(UserInterface $user)
+    public function getTokenUser(UserInterface $user): JsonResponse
     {
         $data = $this->userRepository->getUserById($user->getId()->toString());
         
-        return $this->responseWithData(
+        return $this->response(
+            Response::HTTP_OK,
+            'User authenticated',
             [
                 'token' => $this->userManager->generateJWTToken($user),
                 'user'  => $this->userDataTransformer->transformOutput($data, [BaseDto::GROUP_SINGLE])
-            ],
-            Response::HTTP_OK
+            ]
         );
     }
     
@@ -83,16 +84,17 @@ class AuthController extends BaseApiController
             
             $dto->validate([BaseDto::GROUP_CREATE]);
             
-            $this->userManager->createUser($dto);
+            $id = $this->userManager->createUser($dto);
             
-            return $this->responseWithSuccess(
+            return $this->response(
+                Response::HTTP_CREATED,
                 sprintf('User %s successfully created', $dto->email), 
-                Response::HTTP_CREATED
+                ['id' => $id]
             );
         } catch (ValidationException $e) {
-            return $this->responseWithError($e->getMessage(), Response::HTTP_BAD_REQUEST);
+            return $this->response(Response::HTTP_BAD_REQUEST, $e->getMessage());
         } catch (Throwable $e) {
-            return $this->responseWithError('User has not been created!', Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->response(Response::HTTP_INTERNAL_SERVER_ERROR, 'User has not been created!');
         }
     }
 }

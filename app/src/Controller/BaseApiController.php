@@ -3,70 +3,34 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class BaseApiController extends AbstractController
 {
     /**
-     * Sets data
-     * @param array $data
-     * @param int|null $statusCode
-     * @param array|null $headers
-     * @return JsonResponse
-     */
-    public function responseWithData(array $data, int $statusCode = Response::HTTP_OK, array $headers = []): JsonResponse
-    {
-        return $this->response($data, $statusCode, $headers);
-    }
-    
-    /**
-     * Sets an error message
-     * @param string $error
+     * Prepares and returns a JSON response
      * @param int $statusCode
+     * @param string $message
+     * @param array|null $data
+     * @param array|null $meta
      * @param array|null $headers
      * @return JsonResponse
      */
-    public function responseWithError(string $error, int $statusCode, array $headers = []): JsonResponse
+    public function response(
+        int $statusCode, 
+        string $message, 
+        array $data = [], 
+        array $meta = [], 
+        array $headers = []
+    ): JsonResponse
     {
-        $data = [
-            'status' => $statusCode,
-            'error'  => $error
+        $response = [
+            'data'    => $data,
+            'message' => $message,
+            'meta'    => $meta
         ];
-
-        return $this->response($data, $statusCode, $headers);
-    }
-
-    /**
-     * Sets an success message
-     * @param string $success
-     * @param int $statusCode
-     * @param array|null $headers
-     * @return JsonResponse
-     */
-    public function responseWithSuccess(string $success, int $statusCode, array $headers = []): JsonResponse
-    {
-        $data = [
-            'status' => $statusCode,
-            'success' => $success
-        ];
-
-        return $this->response($data, $statusCode, $headers);
-    }
-   
-    /**
-     * Returns a JSON response
-     * @param array $data
-     * @param int $statusCode
-     * @param array|null $headers
-     * @return JsonResponse
-     */
-    private function response(array $data, int $statusCode, array $headers = []): JsonResponse
-    {
-        return new JsonResponse($data, $statusCode, $headers);
+        
+        return new JsonResponse($response, $statusCode, $headers);
     }
 }

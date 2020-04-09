@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\DataTransformer;
 
-use App\Support\ValidationException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
