@@ -51,7 +51,12 @@ abstract class BaseDto
         $validationErrors = $this->validator->validate($this, null, $groups);
         
         if (count($validationErrors) > 0) {
-            throw new ValidationException((string) $validationErrors);
+            $errors = [];
+            foreach ($validationErrors as $error) {
+                $errors[$error->getPropertyPath()] = $error->getMessage();
+            }
+            
+            throw new ValidationException('Validation errors', $errors);
         }
         
         return true;

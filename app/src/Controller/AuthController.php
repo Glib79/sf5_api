@@ -14,7 +14,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Throwable;
 
 class AuthController extends BaseApiController
 {
@@ -92,9 +91,7 @@ class AuthController extends BaseApiController
                 ['id' => $id]
             );
         } catch (ValidationException $e) {
-            return $this->response(Response::HTTP_BAD_REQUEST, $e->getMessage());
-        } catch (Throwable $e) {
-            return $this->response(Response::HTTP_INTERNAL_SERVER_ERROR, 'User has not been created!');
+            return $this->response(Response::HTTP_BAD_REQUEST, $e->getMessage(), $e->getErrors());
         }
     }
 }

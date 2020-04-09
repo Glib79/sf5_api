@@ -4,11 +4,12 @@ declare(strict_types=1);
 namespace App\EventListener;
 
 use App\Controller\BaseApiController;
-use Throwable;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Throwable;
 
 class ExceptionListener
 {
@@ -18,12 +19,19 @@ class ExceptionListener
     private $controller;
     
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+    
+    /**
      * ExceptionListener constructor
      * @param BaseApiController $controller
+     * @param LoggerInterface $logger
      */
-    public function __construct(BaseApiController $controller)
+    public function __construct(BaseApiController $controller, LoggerInterface $logger)
     {
         $this->controller = $controller;
+        $this->logger = $logger;
     }
     
     /**
@@ -34,7 +42,9 @@ class ExceptionListener
     {
         $exception = $event->getThrowable();
         
-        $response = $this->createApiResponse($exception);
+        $this->logger->error(sprintf('%s occured with messsage: %s', get_class($exception), $exception->getMessage()));
+        
+        $response = $this->createResponse($exception);
         $event->setResponse($response);
     }
     
@@ -43,7 +53,7 @@ class ExceptionListener
      * @param Exception $exception
      * @return JsonResponse
      */
-    private function createApiResponse(Throwable $exception): JsonResponse
+    private function createResponse(Throwable $exception): JsonResponse
     {
         $statusCode = $exception instanceof HttpExceptionInterface ? $exception->getStatusCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
         

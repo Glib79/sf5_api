@@ -14,7 +14,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Throwable;
 
 /**
  * @Route("/api", name="category_api")
@@ -71,9 +70,7 @@ class CategoryController extends BaseApiController
             
             return $this->response(Response::HTTP_CREATED, 'Category created', ['id' => $id]);
         } catch (ValidationException $e) {
-            return $this->response(Response::HTTP_BAD_REQUEST, $e->getMessage());
-        } catch (Throwable $e) {
-            return $this->response(Response::HTTP_INTERNAL_SERVER_ERROR, 'Category has not been created!');
+            return $this->response(Response::HTTP_BAD_REQUEST, $e->getMessage(), $e->getErrors());
         }
     }
     
@@ -91,13 +88,9 @@ class CategoryController extends BaseApiController
             return $this->response(Response::HTTP_NOT_FOUND, 'Category not found');
         }
         
-        try {
-            $this->categoryManager->deleteCategory($id);
+        $this->categoryManager->deleteCategory($id);
             
-            return $this->response(Response::HTTP_OK, 'Category deleted');
-        } catch (Throwable $e) {
-            return $this->response(Response::HTTP_INTERNAL_SERVER_ERROR, 'Category has not been deleted!');
-        }
+        return $this->response(Response::HTTP_OK, 'Category deleted');
     }
     
     /**
@@ -164,9 +157,7 @@ class CategoryController extends BaseApiController
 
             return $this->response(Response::HTTP_OK, 'Category updated');
         } catch (ValidationException $e) {
-            return $this->response(Response::HTTP_BAD_REQUEST, $e->getMessage());
-        } catch (Throwable $e) {
-            return $this->response(Response::HTTP_INTERNAL_SERVER_ERROR, 'Category has not been updated!');
+            return $this->response(Response::HTTP_BAD_REQUEST, $e->getMessage(), $e->getErrors());
         }
     }
 }
