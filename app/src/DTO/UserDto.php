@@ -28,8 +28,8 @@ class UserDto extends BaseDto
      * @Groups({BaseDto::GROUP_CREATE, BaseDto::GROUP_UPDATE})
      * @Assert\NotBlank(groups={BaseDto::GROUP_CREATE, BaseDto::GROUP_UPDATE})
      * @Assert\Regex(
-     *     pattern="/\d/",
-     *     message="Password not meet our standards",
+     *     pattern="/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{7,20}$/",
+     *     message="Password does not meet our standards",
      *     groups={BaseDto::GROUP_CREATE, BaseDto::GROUP_UPDATE}
      * )
      * @var string
