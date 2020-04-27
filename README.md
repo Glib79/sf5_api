@@ -23,6 +23,9 @@ Migration create database structure.
 ### Step 3 - add ssh keys
 Application needs ssh keys:
 
+Create directory for ssh keys:
+- mkdir app/config/jwt
+
 Generate ssh keys:
 - docker-compose exec php openssl genrsa -out config/jwt/private.pem -aes256 4096
 - docker-compose exec php openssl rsa -pubout -in config/jwt/private.pem -out config/jwt/public.pem
