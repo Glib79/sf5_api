@@ -6,13 +6,13 @@ namespace App\Tests\Service;
 use App\DTO\CategoryDto;
 use App\Repository\CategoryRepository;
 use App\Service\CategoryManager;
+use App\Tests\BaseTestCase;
 use DateTime;
-use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class CategoryManagerTest extends TestCase
+class CategoryManagerTest extends BaseTestCase
 {
     /**
      * SCENARIO: receiving name
